@@ -1,0 +1,10 @@
+.git
+.idea
+vendor
+main
+test_main
+bin/
+*.exe
+*.test
+*.prof
+.env.local
