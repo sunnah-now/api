@@ -22,3 +22,4 @@ export const bookHadithsKey = (slug: string) => `book:${slug}:hadiths`;
 export const hadithIDKey = (id: number) => `hadith:${id}`;
 export const authTokenKey = (token: string) => `auth:token:${token}`;
 export const userStatsKey = (token: string) => `stats:user:${token}:calls`;
+export const userDailyStatsKey = (token: string, day: string) => `stats:user:${token}:daily:${day}`;

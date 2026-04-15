@@ -22,7 +22,7 @@ async function loadData() {
     const filePath = path.join(DATABASE_DIR, file);
     const data = fs.readFileSync(filePath, 'utf-8');
     const book: Book = JSON.parse(data);
-    await saveBook(clean(book));
+    await saveBook(book);
     console.log(`Loaded ${book.slug}`);
   }
 
@@ -69,23 +69,6 @@ async function saveBook(book: Book) {
   }
 
   await pipeline.exec();
-}
-
-function clean(obj: any): any {
-  if (typeof obj === 'string') {
-    return obj.replace(/"/g, "'");
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(clean);
-  }
-  if (typeof obj === 'object' && obj !== null) {
-    const newObj: any = {};
-    for (const key in obj) {
-      newObj[key] = clean(obj[key]);
-    }
-    return newObj;
-  }
-  return obj;
 }
 
 loadData().catch(console.error);

@@ -4,7 +4,7 @@ import { checkAuth } from '@/lib/auth';
 import { Book } from '@/lib/models';
 
 export async function GET(request: NextRequest) {
-  const auth = await checkAuth(request);
+  const auth = await checkAuth(request, { allowQueryParam: true });
   if (auth.error) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }

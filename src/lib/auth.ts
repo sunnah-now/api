@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import redis, { authTokenKey, userStatsKey } from './redis';
+import redis, { authTokenKey, userDailyStatsKey } from './redis';
 
-export async function checkAuth(request: NextRequest) {
+export async function checkAuth(request: NextRequest, options: { allowQueryParam?: boolean } = {}) {
   let token = request.headers.get('X-API-Key');
-  if (!token) {
+  if (!token && options.allowQueryParam) {
     token = request.nextUrl.searchParams.get('api_key');
   }
 
@@ -36,8 +36,12 @@ export async function checkAuth(request: NextRequest) {
   }
 
   // Record stats
-  const now = new Date().toISOString();
-  await redis.rpush(userStatsKey(token), now);
+  const now = new Date();
+  const day = now.toISOString().split('T')[0];
+  const minute = now.toISOString().split('T')[1].substring(0, 5);
+  await redis.hincrby(userDailyStatsKey(token, day), minute, 1);
+  // Set expiry for daily stats (30 days) to avoid long-term unbounded growth
+  await redis.expire(userDailyStatsKey(token, day), 60 * 60 * 24 * 30);
 
   return {
     token,

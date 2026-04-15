@@ -39,14 +39,14 @@ This allows for easier maintenance and contributions. Make sure to check it out 
    ```
 
 ## API Routes
-See documentation: [docs.sunnah.now](https://docs.sunnah.now/api) for detailed API documentation, including request/response samples.
+See documentation: [docs.sunnah.now](https://docs.sunnah.now/api) for detailed API documentation, including request/response samples. All requests MUST include the `X-API-Key` header or the `api_key` query parameter.
 
-- `GET /api/v1/books`: List all books.
-- `GET /api/v1/book/:slug`: Get book metadata.
-- `GET /api/v1/book/:slug/list`: List hadiths in a book (paginated).
-- `GET /api/v1/book/:slug/list/:id`: Get a specific hadith by ID.
-- `GET /api/v1/book/:slug/chapter`: List chapters in a book.
-- `GET /api/v1/book/:slug/chapter/:id`: List hadiths in a specific chapter (paginated).
+- `GET /api/early-access/books`: List all books.
+- `GET /api/early-access/book/:slug`: Get book metadata.
+- `GET /api/early-access/book/:slug/hadith`: List hadiths in a book (paginated).
+- `GET /api/early-access/book/:slug/hadith/:id`: Get a specific hadith by ID.
+- `GET /api/early-access/book/:slug/chapter/:id`: List hadiths in a specific chapter (paginated).
+- `GET /api/early-access/book/:slug/volume/:id`: List hadiths in a specific volume (paginated).
 
 ## Management Routes
 

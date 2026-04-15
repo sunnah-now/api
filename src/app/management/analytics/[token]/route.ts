@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import redis, { userStatsKey } from '@/lib/redis';
+import redis, { userDailyStatsKey } from '@/lib/redis';
 import { checkAdminAuth } from '@/lib/auth';
 
 export async function GET(
@@ -22,21 +22,10 @@ export async function GET(
   }
 
   try {
-    const calls = await redis.lrange(userStatsKey(token), 0, -1);
-    const minuteCounts: Record<string, number> = {};
-
-    for (const call of calls) {
-      const date = new Date(call);
-      const isoDate = date.toISOString().split('T')[0];
-      if (isoDate === day) {
-        const minute = date.toISOString().split('T')[1].substring(0, 5);
-        minuteCounts[minute] = (minuteCounts[minute] || 0) + 1;
-      }
-    }
-
+    const minuteCounts = await redis.hgetall(userDailyStatsKey(token, day));
     const stats = Object.entries(minuteCounts)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([minute, count]) => ({ minute, count }));
+      .map(([minute, count]) => ({ minute, count: parseInt(count, 10) }));
 
     return NextResponse.json({
       token,
