@@ -4,14 +4,14 @@ import { checkAdminAuth } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   const auth = await checkAdminAuth(request);
   if (auth.error) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { token } = params;
+  const { token } = await params;
   const day = request.nextUrl.searchParams.get('day');
 
   if (!token) {

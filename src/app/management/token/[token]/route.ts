@@ -4,14 +4,14 @@ import { checkAdminAuth } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   const auth = await checkAdminAuth(request);
   if (auth.error) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { token } = params;
+  const { token } = await params;
   if (!token) {
     return NextResponse.json({ error: 'token is required' }, { status: 400 });
   }
@@ -38,14 +38,14 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   const auth = await checkAdminAuth(request);
   if (auth.error) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { token } = params;
+  const { token } = await params;
   if (!token) {
     return NextResponse.json({ error: 'token is required' }, { status: 400 });
   }

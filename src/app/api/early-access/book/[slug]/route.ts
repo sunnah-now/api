@@ -5,14 +5,14 @@ import { isValidSlug } from '@/lib/utils';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   const auth = await checkAuth(request, { allowQueryParam: true });
   if (auth.error) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { slug } = params;
+  const { slug } = await params;
   if (!isValidSlug(slug)) {
     return NextResponse.json({ error: 'invalid slug format' }, { status: 400 });
   }
