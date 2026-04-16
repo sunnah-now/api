@@ -29,6 +29,7 @@ help:
 	@echo "  make start                      - Start production server"
 	@echo "  make lint                       - Run next lint"
 	@echo "  make load-data                  - Load hadith data into Redis"
+	@echo "  make stats                      - Show general stats and user usage"
 
 .PHONY: dev
 dev:
@@ -92,3 +93,32 @@ list-tokens:
 		done; \
 		echo "-----------------------------------"; \
 		fi
+
+.PHONY: stats
+stats:
+	@echo "=== General Statistics ==="
+	@num_books=$$( $(REDIS_CLI) SCARD books ); \
+	num_tokens=$$( $(REDIS_CLI) KEYS "auth:token:*" | wc -l ); \
+	books=$$( $(REDIS_CLI) SMEMBERS books ); \
+	total_hadiths=0; \
+	for book in $$books; do \
+		count=$$( $(REDIS_CLI) LLEN "book:$$book:hadiths" ); \
+		total_hadiths=$$(($$total_hadiths + $$count)); \
+	done; \
+	echo "Total Books:   $$num_books"; \
+	echo "Total Tokens:  $$num_tokens"; \
+	echo "Total Hadiths: $$total_hadiths"
+	@echo ""
+	@echo "=== User Usage Overview ==="
+	@printf "%-15s | %-25s | %-25s | %s\n" "Name" "Email" "Last Used" "Calls"
+	@echo "----------------|---------------------------|---------------------------|-------"
+	@tokens=$$( $(REDIS_CLI) KEYS "auth:token:*" ); \
+	for token in $$tokens; do \
+		name=$$( $(REDIS_CLI) HGET $$token name | tr -d '"' ); \
+		email=$$( $(REDIS_CLI) HGET $$token email | tr -d '"' ); \
+		last_used=$$( $(REDIS_CLI) HGET $$token last_used_at | tr -d '"' ); \
+		total_calls=$$( $(REDIS_CLI) HGET $$token total_calls | tr -d '"' ); \
+		if [ -z "$$last_used" ] || [ "$$last_used" = "nil" ] || [ "$$last_used" = "(nil)" ]; then last_used="Never"; fi; \
+		if [ -z "$$total_calls" ] || [ "$$total_calls" = "nil" ] || [ "$$total_calls" = "(nil)" ]; then total_calls="0"; fi; \
+		printf "%-15s | %-25s | %-25s | %s\n" "$$name" "$$email" "$$last_used" "$$total_calls"; \
+	done
