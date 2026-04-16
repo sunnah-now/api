@@ -43,6 +43,12 @@ export async function checkAuth(request: NextRequest, options: { allowQueryParam
   // Set expiry for daily stats (30 days) to avoid long-term unbounded growth
   await redis.expire(userDailyStatsKey(token, day), 60 * 60 * 24 * 30);
 
+  // Update last usage and total calls
+  await redis.hset(authTokenKey(token), {
+    last_used_at: now.toISOString(),
+  });
+  await redis.hincrby(authTokenKey(token), 'total_calls', 1);
+
   return {
     token,
     status: 200,
